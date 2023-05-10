@@ -3,9 +3,11 @@ import torch.nn as nn
 
 
 class QPU(nn.Module):
-    def __init__(self):
-        super().__init__()
-
+    #similar to QPU example github since needs same parameters
+    def __init__(self, in_features, out_features):
+        super(QPU, self).__init__()
+        self.in_features = in_features
+        self.out_features = out_features
     def forward(self,x):
         x = self.flatten(x)
         
