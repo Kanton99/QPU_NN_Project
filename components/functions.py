@@ -36,7 +36,7 @@ def bias_qpu_power(q,w,b):
 
 def qpu_forward(qpus,weights,bias):
     """"""
-    res = bias_qpu_power(qpus[0],weights[0])
+    res = bias_qpu_power(qpus[0],weights[0],bias)
     for i in range(1,len(qpus)):
         res = q_prod(res,bias_qpu_power(qpus[i],weights[i],bias))
     return res

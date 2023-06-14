@@ -31,4 +31,4 @@ def train(model,data,epochs,lr):
 if __name__=="__main__":
 
     data = CubeEdge(train=True, num_edges=4, use_quaternion=True)
-    train(models.QMLP,data, 100,0.01)
+    train(QMLP(),data, 100,0.01)

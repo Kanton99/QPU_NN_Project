@@ -16,8 +16,8 @@ class QPU(nn.Module):
         super(QPU, self).__init__()
         self.in_features = in_features
         self.out_features = out_features
-        self.weights = Parameter(self.in_features,self.out_features)
-        self.bias = Parameter(self.out_features)
+        self.weights = Parameter(torch.Tensor(self.in_features,self.out_features))
+        self.bias = Parameter(torch.Tensor(self.out_features))
     
     def forward(self,x):
         return qpu_forward(x,self.weights,self.bias)

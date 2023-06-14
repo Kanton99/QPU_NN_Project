@@ -1,3 +1,4 @@
+#Taken from the paper's code to generate the datasets
 import numpy as np
 import torch.utils.data
 import matplotlib.pyplot as plt
