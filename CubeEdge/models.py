@@ -12,24 +12,26 @@ class MLPBase(nn.Module):
         super(MLPBase, self).__init__()
 
     def forward(self, x):
-        batch_size = x.shape[0]
-        x = x.permute(0, 2, 1)
-        x = x.reshape(batch_size, -1)
+        # batch_size = x.shape[0]
+        # x = x.permute(0, 2, 1)
+        # x = x.reshape(batch_size, -1)
         return self.stack(x)
 
-RMLP = nn.Sequential(
-    nn.Linear(28,128),
-    nn.ReLU(),
-    nn.Linear(128,128),
-    nn.ReLU(),
-    nn.Linear(128,32)
-)
+class RMLP(MLPBase):
+    def __init__(self,num_data,num_cls):
+        super(RMLP,self).__init__()
 
-# QMLP = nn.Sequential(
-#     QPU(7,128),
-#     QPU(128,128),
-#     nn.Linear(128,32)
-# )
+        self.stack = nn.Sequential(
+            nn.Linear(num_data*4,128),
+            nn.ReLU(),
+            nn.Linear(128,128),
+            nn.ReLU(),
+            nn.Linear(128,num_cls)
+        )
+    
+    def forward(self,x):
+        x = torch.flatten(x)
+        return self.stack(x)
 
 # QMLP_RInv = nn.Sequential(
 #     QPU(7,128),
@@ -39,11 +41,11 @@ RMLP = nn.Sequential(
 # )
 
 class QMLP(MLPBase):
-    def __init__(self):
+    def __init__(self,num_data):
         super(QMLP,self).__init__()
 
         self.stack = nn.Sequential(
-            QPU(7,128),
+            QPU(num_data*4,128),
             QPU(128,128),
             nn.Linear(128,32)
         )

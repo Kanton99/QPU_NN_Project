@@ -34,12 +34,14 @@ def bias_qpu_power(q,w,b):
     v3 = q[3]*mul
     return [s,v1,v2,v3]
 
-def qpu_forward(qpus,weights,bias):
+def qpu_forward(input,weights,bias):
     """"""
-    res = bias_qpu_power(qpus[0],weights[0],bias)
-    for i,qpu in enumerate(qpus):
-        res = q_prod(res,bias_qpu_power(qpu,weights[i],bias))
-    return res
+    ret = []
+    in_channels = (weights.shape[-1])//4
+    out_channels = (weights[1])
+
+    
+    return torch.tensor(ret)
     
 
 def normalize(q):

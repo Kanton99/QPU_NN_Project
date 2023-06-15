@@ -1,3 +1,5 @@
+#imported file to make the data generation work
+
 import numpy as np
 
 def random_unit_quaternion():
@@ -5,7 +7,7 @@ def random_unit_quaternion():
     q = (q - 0.5) * 2  # [-1, 1)
     norm = np.sqrt(np.sum(np.square(q)))
     if norm == 0.:
-        return random_unit_quaterion()  # try again
+        return random_unit_quaternion()  # try again
     else:
         q = q / norm
         return q

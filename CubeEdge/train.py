@@ -9,26 +9,30 @@ from models import *
 from cubeEdgeData import CubeEdge
 
 
-def train(model,data,epochs,lr):
+def train(model,data,epochs,lr,batch_size):
 
-    criterion = nn.BCEWithLogitsLoss()
+    criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(),lr=lr)
 
-    train_dataloader = DataLoader(data,batch_size=64,shuffle=True)
+    train_dataloader = DataLoader(data,batch_size=batch_size,shuffle=True)
     for epoch in range(epochs):
         #Forward pass
-        
-        for i, data in enumerate(train_dataloader):
-            inputs, labels = data
+        for input,label in train_dataloader:
+            initial = input[0]
+            print(model(initial))
             optimizer.zero_grad()
-            outputs = model(inputs)
-
-            loss = criterion(outputs,labels)
-            loss.backwards()
-
+            outputs = model(input)
+            #print(outputs)
+            loss = criterion(outputs,label)
+            loss.backward()
             optimizer.step()
 
 if __name__=="__main__":
 
-    data = CubeEdge(train=True, num_edges=4, use_quaternion=True)
-    train(QMLP(),data, 100,0.01)
+    data = CubeEdge(train=True, num_edges=7, use_quaternion=True,num_samples=2000)
+    rmlp_net = RMLP(num_data=7,num_cls=data.num_shapes)
+    train(rmlp_net,data=data,epochs=100,lr=0.01,batch_size=data.num_shapes)
+
+    print(rmlp_net(torch.tensor(data[0][0])))
+
+    
