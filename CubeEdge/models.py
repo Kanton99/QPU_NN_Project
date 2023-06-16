@@ -12,9 +12,10 @@ class MLPBase(nn.Module):
         super(MLPBase, self).__init__()
 
     def forward(self, x):
-        # batch_size = x.shape[0]
-        # x = x.permute(0, 2, 1)
-        # x = x.reshape(batch_size, -1)
+        batch_size = x.shape[0]
+        x = x.permute(0, 2, 1)
+        x = x.reshape(batch_size, -1)
+        #x = torch.flatten(x)
         return self.stack(x)
 
 class RMLP(MLPBase):
@@ -41,11 +42,11 @@ class RMLP(MLPBase):
 # )
 
 class QMLP(MLPBase):
-    def __init__(self,num_data):
+    def __init__(self,num_data,num_cls):
         super(QMLP,self).__init__()
 
         self.stack = nn.Sequential(
             QPU(num_data*4,128),
             QPU(128,128),
-            nn.Linear(128,32)
+            nn.Linear(128,num_cls)
         )

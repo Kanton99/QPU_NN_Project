@@ -4,20 +4,21 @@ from torch.nn.parameter import Parameter
 
 from components.functions import *
 
-device = (
-    "cuda" if torch.cuda.is_available()
-    else "mps" if torch.backends.mps.is_available()
-    else "cpu"
-)
 
 class QPU(nn.Module):
+    """
+    in_features: number of input data to each node
+    out_features: number of nodes in the layer
+    """
     #similar to QPU example github since needs same parameters
     def __init__(self, in_features, out_features):
         super(QPU, self).__init__()
-        self.in_features = in_features
-        self.out_features = out_features
-        self.weights = Parameter(torch.Tensor(self.in_features,self.out_features))
+        self.in_features = in_features // 4
+        self.out_features = out_features // 4
+        self.weights = Parameter(torch.Tensor(self.out_features,self.in_features))
         self.bias = Parameter(torch.Tensor(self.out_features))
+
+        nn.init.xavier_uniform_(self.weights)
     
     def forward(self,x):
         return qpu_forward(x,self.weights,self.bias)

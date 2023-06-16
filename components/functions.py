@@ -1,14 +1,16 @@
 import torch
 import math
 
-#quaternion are defined as a 2 element tesnor, first is the scalar the second is a 3 float tensor representing the vector part
+#quaternion are defined as a 4 element tesnor
 
-def q_prod(q1,q2):
+def q_prod(q1:torch.Tensor,q2:torch.Tensor):
     q1_vector = torch.take(q1,torch.tensor([1,2,3]))
     q2_vector = torch.take(q2,torch.tensor([1,2,3]))
-    scalar = q1[0]*q2[0]-torch.dot(q1_vector,q2_vector)
+    q1_scalar = torch.take(q1,torch.tensor([0]))
+    q2_scalar = torch.take(q2,torch.tensor([0]))
+    scalar = q1_scalar*q2_scalar-torch.dot(q1_vector,q2_vector)
     vector = torch.cross(q1_vector,q2_vector)+torch.mul(q1[0],q2[1])+torch.mul(q2[0],q1[1])
-    return torch.cat(scalar,vector) 
+    return torch.cat((scalar,vector)) 
 
 
 def qpu_power(q,w):
@@ -25,23 +27,31 @@ def qpu_power(q,w):
         return [s,v1,v2,v3]
 
 def bias_qpu_power(q,w,b):
-    a_s = torch.acos(q[0])
-    s = torch.cos((w*a_s)+b)
+    wasb = w*(torch.acos(q[0])+b)
+    s = torch.cos(wasb)
     magnitude = torch.linalg.norm(q)
-    mul = torch.sin(a_s+b)/magnitude
+    mul = torch.sin(wasb)/magnitude
     v1 = q[1]*mul
     v2 = q[2]*mul
     v3 = q[3]*mul
-    return [s,v1,v2,v3]
+    return torch.tensor([s,v1,v2,v3])
 
-def qpu_forward(input,weights,bias):
+def qpu_forward(inputs,weights,bias):
     """"""
-    ret = []
-    in_channels = (weights.shape[-1])//4
-    out_channels = (weights[1])
+    out = torch.tensor([])
+    in_channels = weights.shape[-1]
+    out_channels = weights.shape[0]
 
-    
-    return torch.tensor(ret)
+    inputs = torch.reshape(inputs,(in_channels,4))
+    for i in range(out_channels):
+        weight = weights[i]
+        node = bias_qpu_power(inputs[0],weight[0],bias[0])
+        for j,input in enumerate(inputs[1:]):
+            node = q_prod(node,bias_qpu_power(input,weight[j+1],bias[j+1]))
+        out = torch.cat((out,node))
+
+    #out = torch.reshape(out,(out_channels,4))
+    return out
     
 
 def normalize(q):
@@ -62,7 +72,10 @@ def angleAxisMap(q):
 
 if __name__=="__main__":
 
-    q = torch.Tensor([1,1,1])
-    nq = normalize(q)
-    print(torch.linalg.norm(nq))
+    q1 = torch.Tensor([])
+    q2 = torch.Tensor([1,1,1,2])
+
+    test = torch.cat((q1,q2))
+    print(test)
+    
 
