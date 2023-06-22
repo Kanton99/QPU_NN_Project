@@ -161,4 +161,4 @@ cython_debug/
 
 test.py
 data/
-*.code-workspace/
+QPU_NN_Project.code-workspace
