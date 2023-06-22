@@ -161,4 +161,4 @@ cython_debug/
 
 test.py
 data/
-.code-workspace/
+*.code-workspace/
