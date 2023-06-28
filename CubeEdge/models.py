@@ -15,7 +15,7 @@ class MLPBase(nn.Module):
         # batch_size = x.shape[0]
         # x = x.permute(0, 2, 1)
         # x = x.reshape(batch_size, -1)
-        x = torch.flatten(x)
+        #x = torch.flatten(x)
         return self.stack(x)
 
 class RMLP(MLPBase):
