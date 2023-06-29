@@ -13,46 +13,71 @@ def q_prod(q1:torch.Tensor,q2:torch.Tensor):
     return torch.cat((scalar,vector)) 
 
 
-def qpu_power(q,w):
-    if(q[1]==q[2]==q[3]==0):
-        return {1,0,0,0}
-    else:
-        a_s = torch.acos(torch.clamp(q[0],-1+1e-12,1-1e-12))
-        s = torch.cos((w*a_s))
-        magnitude = torch.linalg.norm(q)
-        mul = torch.sin(a_s)/magnitude
-        v1 = q[1]*mul
-        v2 = q[2]*mul
-        v3 = q[3]*mul
-        return [s,v1,v2,v3]
+def qpu_power(x,y,z,w,weights):
+    wabs = torch.mul(weights,(torch.acos(x)))
+    x = torch.cos(wabs)
+    norms = torch.sqrt(y**2+z**2+w**2)
+    mul = torch.sin(wabs)/norms
+    y = y * mul
+    z = z * mul
+    w = w * mul
+    return (x,y,z,w)
 
-def bias_qpu_power(q,w,b):
-    wasb = w*(torch.acos(q[0])+b)
-    s = torch.cos(wasb)
-    magnitude = torch.linalg.norm(q)
-    mul = torch.sin(wasb)/magnitude
-    v1 = q[1]*mul
-    v2 = q[2]*mul
-    v3 = q[3]*mul
-    return torch.tensor([s,v1,v2,v3])
+def bias_qpu_power(x,y,z,w,weights,b):
+    wabs = torch.mul(weights,(torch.acos(x)+b.unsqueeze(-1)))
+    x = torch.cos(wabs)
+    norms = torch.sqrt(y**2+z**2+w**2+1e-12)
+    mul = torch.sin(wabs)/norms
+    y = y * mul
+    z = z * mul
+    w = w * mul
+    return (x,y,z,w)
 
+
+#Similar to original function due to being the most efficient
 def qpu_forward(inputs,weights,bias):
     """"""
     out = torch.tensor([])
-    in_channels = weights.shape[-1]
+    in_channels = inputs.shape[-1]//4
     out_channels = weights.shape[0]
 
-    inputs = torch.reshape(inputs,(in_channels,4))
-    for i in range(out_channels):
-        weight = weights[i]
-        node = bias_qpu_power(inputs[0],weight[0],bias[0])
-        for j,input in enumerate(inputs[1:]):
-            node = q_prod(node,bias_qpu_power(input,weight[j+1],bias[j+1]))
-        out = torch.cat((out,node))
+    x,y,z,w = inputs.unsqueeze(-2).split(in_channels,dim=-1)
+
+    x,y,z,w = bias_qpu_power(x,y,z,w,weights[0],bias)
+    x,y,z,w = QuaternionRemoveZeros.apply(x,y,z,w)
+
+
+    #inputs = torch.reshape(inputs,(in_channels,4))
+    # for i in range(out_channels):
+    #     weight = weights[i]
+    #     node = bias_qpu_power(inputs[0],weight[0],bias[0])
+    #     for j,input in enumerate(inputs[1:]):
+    #         node = q_prod(node,bias_qpu_power(input,weight[j+1],bias[j+1]))
+    #     out = torch.cat((out,node))
 
     #out = torch.reshape(out,(out_channels,4))
     return out
     
+#copied from original code due to being the best implementation
+class QuaternionRemoveZeros(torch.autograd.Function):
+    """Replace [0, 0, 0, 0] with [1, 0, 0, 0]
+    """
+    @staticmethod
+    def forward(ctx,r,i,j,k):
+        norm = r**2+ i**2+ j**2+ k**2
+        index = norm == 0
+        ctx.save_for_backward(index)
+        r[index] = 1
+        return r,i,j,k
+
+    @staticmethod
+    def backward(ctx,gr,gi,gj,gk):
+        index, = ctx.saved_tensors
+        gr[index] = 0
+        gi[index] = 0
+        gj[index] = 0
+        gk[index] = 0
+        return gr, gi, gj, gk
 
 def normalize(q):
     magnitude = torch.linalg.norm(q)
@@ -72,10 +97,15 @@ def angleAxisMap(q):
 
 if __name__=="__main__":
 
-    q1 = torch.Tensor([])
-    q2 = torch.Tensor([1,1,1,2])
-
-    test = torch.cat((q1,q2))
-    print(test)
+    x = torch.Tensor([[[1,0,0,0],[1,2,3,4],[1,2,3,4],[1,2,3,4]],[[1,0,0,0],[1,2,3,4],[1,2,3,4],[1,2,3,4]]])
+    weights = torch.ones(x.shape)
+    batchSize = x.shape[0]
+    x = x.permute(0,2,1)
+    x = x.reshape(batchSize, -1)
+    x = x[0]
+    r,i,j,k = x.unsqueeze(-2).split(4, dim=-1)
+    
+    r,i,j,k = qpu_power(r,i,j,k,weights)
+    print(r)
     
 

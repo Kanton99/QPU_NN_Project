@@ -26,14 +26,20 @@ def train(model,data,epochs,lr,batch_size):
         for input,label in train_dataloader:
             input.to(device)
             label.to(device)
-            for i in range(input.shape[0]):
-                optimizer.zero_grad()
-                outputs = model(input[i])
-                #print(outputs)
-                loss = criterion(outputs,label[i])
-                loss.backward()
-                optimizer.step()
-        
+            # for i in range(input.shape[0]):
+            #     optimizer.zero_grad()
+            #     outputs = model(input[i])
+            #     #print(outputs)
+            #     loss = criterion(outputs,label[i])
+            #     loss.backward()
+            #     optimizer.step()
+            optimizer.zero_grad()
+            outputs = model(input)
+            #print(outputs)
+            loss = criterion(outputs,label[i])
+            loss.backward()
+            optimizer.step()
+    
         if epoch+1 % 10 == 0:
             print(f"epoch: {epoch+1}")
             print(loss)

@@ -12,9 +12,9 @@ class MLPBase(nn.Module):
         super(MLPBase, self).__init__()
 
     def forward(self, x):
-        # batch_size = x.shape[0]
-        # x = x.permute(0, 2, 1)
-        # x = x.reshape(batch_size, -1)
+        batch_size = x.shape[0]
+        x = x.permute(0, 2, 1)
+        x = x.reshape(batch_size, -1)
         #x = torch.flatten(x)
         return self.stack(x)
 
