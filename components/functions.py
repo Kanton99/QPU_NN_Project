@@ -24,7 +24,9 @@ def qpu_power(x,y,z,w,weights):
     return (x,y,z,w)
 
 def bias_qpu_power(x,y,z,w,weights,b):
-    wabs = torch.mul(weights,(torch.acos(x)+b.unsqueeze(-1)))
+    theta = (torch.acos(x)+b.unsqueeze(-1))
+    
+    wabs = weights*theta
     x = torch.cos(wabs)
     norms = torch.sqrt(y**2+z**2+w**2+1e-12)
     mul = torch.sin(wabs)/norms
@@ -37,7 +39,6 @@ def bias_qpu_power(x,y,z,w,weights,b):
 #Similar to original function due to being the most efficient
 def qpu_forward(inputs,weights,bias):
     """"""
-    out = torch.tensor([])
     in_channels = inputs.shape[-1]//4
     out_channels = weights.shape[0]
 
@@ -45,7 +46,7 @@ def qpu_forward(inputs,weights,bias):
 
     x,y,z,w = bias_qpu_power(x,y,z,w,weights[0],bias)
     x,y,z,w = QuaternionRemoveZeros.apply(x,y,z,w)
-
+    x,y,z,w = quaterion_chain_prod(x,y,z,w)
 
     #inputs = torch.reshape(inputs,(in_channels,4))
     # for i in range(out_channels):
@@ -56,8 +57,12 @@ def qpu_forward(inputs,weights,bias):
     #     out = torch.cat((out,node))
 
     #out = torch.reshape(out,(out_channels,4))
-    return out
+    ret = torch.cat((x,y,z,w),dim=1)
+    return ret
     
+def quaterion_chain_prod(x,y,z,w):
+
+    return x,y,z,w
 #copied from original code due to being the best implementation
 class QuaternionRemoveZeros(torch.autograd.Function):
     """Replace [0, 0, 0, 0] with [1, 0, 0, 0]
@@ -102,10 +107,10 @@ if __name__=="__main__":
     batchSize = x.shape[0]
     x = x.permute(0,2,1)
     x = x.reshape(batchSize, -1)
-    x = x[0]
+  #  x = x[0]
+    print(x)
     r,i,j,k = x.unsqueeze(-2).split(4, dim=-1)
     
-    r,i,j,k = qpu_power(r,i,j,k,weights)
-    print(r)
+    #r,i,j,k = qpu_power(r,i,j,k,weights)
     
 

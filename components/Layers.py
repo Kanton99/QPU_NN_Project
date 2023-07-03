@@ -19,6 +19,11 @@ class QPU(nn.Module):
         self.bias = Parameter(torch.Tensor(self.out_features))
 
         nn.init.xavier_uniform_(self.weights)
+        if self.bias is not None:
+            fan_in, fan_out = nn.init._calculate_fan_in_and_fan_out(self.weights)
+            a = math.sqrt(6 / (fan_in + fan_out))
+            nn.init.uniform_(self.bias, -a, a)
+
     
     def forward(self,x):
         return qpu_forward(x,self.weights,self.bias)
