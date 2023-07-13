@@ -89,7 +89,8 @@ def quaternion_chained_prod_m(r_input, i_input, j_input, k_input, dim, last=None
 
     return r_out,i_out,j_out,k_out
 
-#this function down to quaternion_chained_prod_grad are copied since they are the fastests implementation for chaining the hamiltonian product    
+# this function down to quaternion_chained_prod_grad are copied since they are the fastests implementation for chaining the hamiltonian product
+# and our tried code was too slow    
 def quaternion_chained_prod(r_input, i_input, j_input, k_input, dim, last=None):
     """
     Chained quaternion product along a dimension (recursive)

@@ -50,3 +50,14 @@ class QMLP(MLPBase):
             QPU(128,128),
             nn.Linear(128,num_cls)
         )
+
+class QMLP_RInv(MLPBase):
+    def __init__(self,num_data,num_cls):
+        super(QMLP_RInv,self).__init__()
+
+        self.stack = nn.Sequential(
+            QPU(num_data*4,128),
+            QPU(128,512),
+            KeepRealPart(),
+            nn.Linear(128,num_cls)
+        )

@@ -39,5 +39,12 @@ class KeepRealPart(nn.Module):
     def __init__(self) -> None:
         super(KeepRealPart,self).__init__()
 
-    def forward(self,q):
-        return q[0]
+    def forward(self,q: torch.Tensor):
+        batch_size = q.shape[0]
+        batch_elements = q.shape[-1]
+        q = q.reshape((batch_size,batch_elements//4,4))
+        q = q.permute(0,2,1)
+        ret = torch.zeros(batch_size,batch_elements//4)
+        for i in range(batch_size):
+            ret[i] = q[i][0]
+        return ret

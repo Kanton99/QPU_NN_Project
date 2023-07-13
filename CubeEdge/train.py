@@ -34,14 +34,14 @@ def train(model,data,epochs,lr,batch_size):
             loss.backward()
             optimizer.step()
     
-        if epoch+1 % 10 == 0:
+        if ((epoch+1) % 10) == 0:
             print(f"epoch: {epoch+1}")
             print(loss)
 
 if __name__=="__main__":
 
     start_time = time.time()
-    data = CubeEdge(train=True, num_edges=7, use_quaternion=True,num_samples=2000)
+    data = CubeEdge(train=True, num_edges=7, use_quaternion=True,num_samples=100)
     net = QMLP(num_data=7,num_cls=data.num_shapes)
     train(model=net,data=data,epochs=100,lr=0.01,batch_size=data.num_shapes)
     print("--- %s seconds ---" % (time.time() - start_time))
