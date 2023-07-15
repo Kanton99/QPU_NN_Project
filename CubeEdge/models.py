@@ -29,17 +29,6 @@ class RMLP(MLPBase):
             nn.ReLU(),
             nn.Linear(128,num_cls)
         )
-    
-    def forward(self,x):
-        x = torch.flatten(x)
-        return self.stack(x)
-
-# QMLP_RInv = nn.Sequential(
-#     QPU(7,128),
-#     QPU(128,512),
-#     KeepRealPart(),
-#     nn.Linear()
-# )
 
 class QMLP(MLPBase):
     def __init__(self,num_data,num_cls):

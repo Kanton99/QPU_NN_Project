@@ -21,9 +21,9 @@ def train(model,data,epochs,lr,batch_size):
 
     train_dataloader = DataLoader(data,batch_size=batch_size,shuffle=True)
     loss = 0
-    net.to(device=device)
+    model.to(device=device)
     for epoch in range(epochs):
-        net.train()
+        model.train()
         #Forward pass
         for input,label in train_dataloader:
             input.to(device)
@@ -60,9 +60,23 @@ if __name__=="__main__":
     start_time = time.time()
     training_data = CubeEdge(train=True, num_edges=7, use_quaternion=True,num_samples=500)
     test_data = CubeEdge(train=False,num_edges=7,use_quaternion=True,num_samples=50)
-    net = QMLP_RInv(num_data=7,num_cls=training_data.num_shapes)
-    train(model=net,data=training_data,epochs=100,lr=0.01,batch_size=training_data.num_shapes)
-    test(model=net,data=test_data)
+    
+    for i in range(10):
+        print(f"test on QMLP_RInv {i}")
+        qmlpR = QMLP_RInv(num_data=7,num_cls=training_data.num_shapes)
+        train(model=qmlpR,data=training_data,epochs=50,lr=0.01,batch_size=training_data.num_shapes)
+        test(model=qmlpR,data=test_data)
+
+        print(f"testing on Linear {i}")
+        linear = RMLP(num_data=7,num_cls=training_data.num_shapes)
+        train(model=linear,data=training_data,epochs=50,lr=0.01,batch_size=training_data.num_shapes)
+        test(model=linear,data=test_data)
+
+        print(f"testing on QMLP {i}")
+        qmlp = QMLP(num_data=7,num_cls=training_data.num_shapes)
+        train(model=qmlpR,data=training_data,epochs=50,lr=0.01,batch_size=training_data.num_shapes)
+        test(model=qmlpR,data=test_data)
+
     print("--- %s seconds ---" % (time.time() - start_time))
     #print(rmlp_net(torch.tensor(data[0][0])))
 
