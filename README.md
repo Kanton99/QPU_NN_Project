@@ -2,12 +2,12 @@
 Quaternion Unit Product (QPU) is an innovative way to build Neural Networks when working with quaternion data.
 They leverage properties of quaternions and hamiltonian products to provide a better and faster way to train networks with quaternion data as input, such as a skeleton model.
 
-$QPU(\{q_i\}^N_{i=1} ;\{w_i\}^N_{i=1};b) = \bigotimes^N_{i=1}qpow(q_i,w_i,b)$
+$$QPU(\{q_i\}^N_{i=1} ;\{w_i\}^N_{i=1};b) = \bigotimes^N_{i=1}qpow(q_i,w_i,b)$$
 
 where:
 
-$q_i=[s_i,v_i]\\
-qpow(q_i,w_i,b)=[cos(w_i(arccos(s_i)+b)),\frac{v_i}{\|{v_i}\|}sin(w_i(arccos(s_i)+b))]$
+$$q_i=[s_i,v_i]\\
+qpow(q_i,w_i,b)=[cos(w_i(arccos(s_i)+b)),\frac{v_i}{\|{v_i}\|}sin(w_i(arccos(s_i)+b))]$$
 
 # Installation
 Linux needed to work
