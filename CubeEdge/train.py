@@ -20,6 +20,7 @@ def train(model,data,epochs,lr,batch_size):
 
     train_dataloader = DataLoader(data,batch_size=batch_size,shuffle=True)
     loss = 0
+    loss_history = []
     model.to(device=device)
     for epoch in range(epochs):
         model.train()
@@ -33,9 +34,11 @@ def train(model,data,epochs,lr,batch_size):
             loss.backward()
             optimizer.step()
     
+        loss_history.append(loss)
         if ((epoch+1) % 10) == 0:
             print(f"epoch: {epoch+1}")
-            print(loss)
+            print("loss: ", loss)
+
 
 def test(data, model):
     dataloader = DataLoader(data,batch_size=32,shuffle=True)
