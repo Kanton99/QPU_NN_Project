@@ -38,6 +38,7 @@ def train(model,data,epochs,lr,batch_size):
         if ((epoch+1) % 10) == 0:
             print(f"epoch: {epoch+1}")
             print("loss: ", loss)
+        return loss_history
 
 
 def test(data, model):
