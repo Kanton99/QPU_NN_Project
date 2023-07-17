@@ -38,7 +38,7 @@ def train(model,data,epochs,lr,batch_size):
         if ((epoch+1) % 10) == 0:
             print(f"epoch: {epoch+1}")
             print("loss: ", loss)
-        return loss_history
+    return loss_history
 
 
 def test(data, model):
@@ -80,8 +80,8 @@ if __name__=="__main__":
 
         print(f"testing on QMLP {i}")
         qmlp = QMLP(num_data=7,num_cls=training_data.num_shapes)
-        train(model=qmlpR,data=training_data,epochs=50,lr=0.01,batch_size=training_data.num_shapes)
-        test(model=qmlpR,data=test_data)
+        train(model=qmlp,data=training_data,epochs=50,lr=0.01,batch_size=training_data.num_shapes)
+        test(model=qmlp,data=test_data)
 
     print("--- %s seconds ---" % (time.time() - start_time))
     #print(rmlp_net(torch.tensor(data[0][0])))
