@@ -17,7 +17,7 @@ device = (
     )
 def train(model,data,epochs,lr,batch_size): 
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(),lr=lr)
+    optimizer = torch.optim.Adam(model.parameters(),lr=lr,weight_decay=1e-5)
 
     train_dataloader = DataLoader(data,batch_size=batch_size,shuffle=True)
     loss = 0
@@ -50,20 +50,19 @@ def test(data, model):
     num_batches = len(dataloader)
     model.eval()
     test_loss, correct = 0, 0
-    loss_history = []
     with torch.no_grad():
         for X, y in dataloader:
             X, y = X.to(device), y.to(device)
             pred = model(X)
             test_loss += loss_fn(pred, y).item()
-            loss_history.append(loss_fn(pred, y).item())
             correct += (pred.argmax(1) == y).type(torch.float).sum().item()
     test_loss /= num_batches
     correct /= size
     print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
-    return loss_history
+    return correct
 
 if __name__=="__main__":
+    torch.set_anomaly_enabled(True,True)
 
     start_time = time.time()
     training_data = CubeEdge(train=True, num_edges=7, use_quaternion=True,num_samples=500)
