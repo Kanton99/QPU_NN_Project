@@ -3,6 +3,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from torch.utils.data import random_split
 import time
+import matplotlib.pyplot as plt
 
 import sys
 sys.path.append('.')
@@ -38,7 +39,8 @@ def train(model,data,epochs,lr,batch_size):
         if ((epoch+1) % 10) == 0:
             print(f"epoch: {epoch+1}")
             print("loss: ", loss)
-    return loss_history
+    loss_history_itemized = [ item.item() for item in loss_history ]
+    return loss_history_itemized
 
 
 def test(data, model):
@@ -80,9 +82,16 @@ if __name__=="__main__":
 
         print(f"testing on QMLP {i}")
         qmlp = QMLP(num_data=7,num_cls=training_data.num_shapes)
-        train(model=qmlp,data=training_data,epochs=50,lr=0.01,batch_size=training_data.num_shapes)
+        train_loss = train(model=qmlp,data=training_data,epochs=50,lr=0.01,batch_size=training_data.num_shapes)
         test(model=qmlp,data=test_data)
 
     print("--- %s seconds ---" % (time.time() - start_time))
     #print(rmlp_net(torch.tensor(data[0][0])))
+
+    plt.plot(train_loss)
+    #plt.plot(test_loss_itemized)
+    plt.title("Training Loss")
+    plt.xlabel("Epochs")
+    plt.ylabel("Loss")
+    plt.show()
 
