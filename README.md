@@ -18,7 +18,7 @@ Create python environment
 
 Activate the environment with
 
-```venv/bin/activate```
+```source venv/bin/activate```
 
 Install required dependencies
 
